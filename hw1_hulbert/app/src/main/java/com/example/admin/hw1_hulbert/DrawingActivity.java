@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -98,27 +100,23 @@ public class DrawingActivity extends AppCompatActivity {
                 try {
                     if(!myFilePath.exists()) {
                         myFilePath.mkdirs();
-                        // File file = new File(myFilePath,"myDrawing.png");
                     }
-                    File myFile = new File(path,"test.jpeg");
-                        myFile.createNewFile();
+                    int nTemp = ((int)((Math.random()*((255-0)+1))+0));
+                    File myFile = new File(myFilePath,"test " + nTemp + ".jpeg");
+                       if(!myFile.createNewFile()){
+                           myFile.createNewFile();
+                       }
                             //System.out.println("GOT HERE");
                             out = new FileOutputStream(myFile);
-                   // BufferedOutputStream bos = new BufferedOutputStream(out);
+
                             bmp = canvas.getBitmap();
-                            bmp.compress(Bitmap.CompressFormat.JPEG, 85,out); // bmp is your Bitmap instance
-                            // PNG is a lossless format, the compression factor (100) is ignored
+                            bmp.getWidth();
+                            bmp.getHeight();
+                            bmp.compress(Bitmap.CompressFormat.JPEG, 100,out);
                         out.flush();
+                        out.close();
                 } catch (Exception e) {
                     e.printStackTrace();
-                } finally {
-                    try {
-                        if (out != null) {
-                            out.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         });

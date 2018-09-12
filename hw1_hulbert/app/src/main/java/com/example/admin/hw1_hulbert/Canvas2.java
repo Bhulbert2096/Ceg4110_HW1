@@ -9,7 +9,11 @@ import android.graphics.Path;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class Canvas2 extends View{
     private static final float TOLERANCE = 5;
@@ -23,7 +27,9 @@ public class Canvas2 extends View{
     private float mX, mY;
     private ArrayList<Path> paths = new ArrayList<Path>();
     private ArrayList<Integer> colors = new ArrayList<>();
+    private Map<Path, Integer> colorsMap = new HashMap<Path, Integer>();
     private int nColor = Color.BLACK;
+    private Paint tmpPaint;
 
     public Canvas2(Context c) {
         super(c);
@@ -34,24 +40,26 @@ public class Canvas2 extends View{
 
         // and we set a new Paint with the desired attributes
         mPaint = new Paint();
+        tmpPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setColor(nColor);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(4f);
-
-        paths.add(mPath);
+        colors.add(nColor);
+       paths.add(mPath);
+       tmpPaint.setColor(nColor);
     }
 
     public void SetColor(int nClr){
        nColor = nClr;
         mPaint.setColor(nClr);
-        colors.add(nClr);
 
     }
 
-    public int GetColor(){
-        return nColor;
+    public Paint GetColor(){
+
+        return tmpPaint;
     }
     // override onSizeChanged
     @Override
@@ -62,32 +70,30 @@ public class Canvas2 extends View{
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawColor(Color.WHITE);
-        mCanvas.drawBitmap(getBitmap(), 0, 0, null);
+      // mCanvas.drawBitmap(mBitmap, 0, 0, null);
     }
 
     // override onDraw
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // draw the mPath with the mPaint on the canvas when onDraw
-        for (Path myPath : paths){
-            try {
-                SetColor(nColor);
-                canvas.drawPath(myPath, mPaint);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-
-        }
-       // canvas.drawBitmap(mBitmap,0,0,mPaint);
         canvas.drawPath(mPath,mPaint);
-          //  Log.i("OnDrawing","Reach on draw");
+        int tmp = 0;
+        for (Path myPath: paths) {
 
-        //canvas.drawPath(mPath, mPaint);
+            //these 2 work
+            mPaint.setColor(colors.get(tmp));
+            canvas.drawPath(paths.get(tmp), tmpPaint);
+            tmp++;
+        }
+      //  tmpPaint = mPaint;
+//        paths.add(mPath);
+//        SetColor(nColor);
+//        colors.add(mPaint.getColor());
+        //you told it to draw it on one now you draw it on the main.
+        mCanvas.drawPath(mPath,mPaint);
     }
 
-    // when ACTION_DOWN start touch according to the x,y values
     private void startTouch(float x, float y) {
 
         mPath.moveTo(x, y);
@@ -95,7 +101,6 @@ public class Canvas2 extends View{
         mY = y;
     }
 
-    // when ACTION_MOVE move touch according to the x,y values
     private void moveTouch(float x, float y) {
         float dx = Math.abs(x - mX);
         float dy = Math.abs(y - mY);
@@ -114,12 +119,8 @@ public class Canvas2 extends View{
         invalidate();
     }
 
-    // when ACTION_UP stop touch
     private void upTouch() {
         mPath.lineTo(mX, mY);
-        //mCanvas.drawPath(mPath,mPaint);
-        //paths.add(mPath);
-        //mPath = new Path();
 
     }
 
@@ -139,7 +140,8 @@ public class Canvas2 extends View{
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
-
+                paths.add(mPath);
+                colors.add(nColor);
                 upTouch();
                 invalidate();
                 break;
@@ -148,10 +150,6 @@ public class Canvas2 extends View{
     }
 
     public Bitmap getBitmap() {
-//        this.setDrawingCacheEnabled(true);
-//        this.buildDrawingCache();
-//        this.setDrawingCacheEnabled(false);
-
         return mBitmap;
     }
 
