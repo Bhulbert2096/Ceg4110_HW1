@@ -77,21 +77,16 @@ public class Canvas2 extends View{
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawPath(mPath,mPaint);
+       canvas.drawPath(mPath,mPaint);
         int tmp = 0;
         for (Path myPath: paths) {
 
             //these 2 work
             mPaint.setColor(colors.get(tmp));
-            canvas.drawPath(paths.get(tmp), tmpPaint);
+          canvas.drawPath(myPath, mPaint);
             tmp++;
         }
-      //  tmpPaint = mPaint;
-//        paths.add(mPath);
-//        SetColor(nColor);
-//        colors.add(mPaint.getColor());
-        //you told it to draw it on one now you draw it on the main.
-        mCanvas.drawPath(mPath,mPaint);
+       mCanvas.drawPath(mPath,mPaint);
     }
 
     private void startTouch(float x, float y) {
@@ -116,6 +111,12 @@ public class Canvas2 extends View{
             p.reset();
         }
         mPath.reset();
+        int wTmp = mBitmap.getWidth();
+        int hTmp = mBitmap.getHeight();
+        mBitmap.recycle();
+        mBitmap = Bitmap.createBitmap(wTmp, hTmp, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+        mCanvas.drawColor(Color.WHITE);
         invalidate();
     }
 
@@ -132,6 +133,8 @@ public class Canvas2 extends View{
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                colors.add(nColor);
+                paths.add(mPath);
                 startTouch(x, y);
                 invalidate();
                 break;
@@ -140,8 +143,7 @@ public class Canvas2 extends View{
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
-                paths.add(mPath);
-                colors.add(nColor);
+
                 upTouch();
                 invalidate();
                 break;
